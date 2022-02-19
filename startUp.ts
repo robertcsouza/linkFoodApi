@@ -5,8 +5,6 @@ import Db from './config/db';
 import * as routes from './config/routes';
 import * as path from 'path'
 
-import createToken from './config/createToken';
-
 class StartUp {
 
     public app:express.Application
@@ -17,7 +15,6 @@ class StartUp {
         this._db = new Db;
         this._db.createConnection();
         this.middler();
-        createToken.cToken();
         routes.default.routes(this.app);
     }
 

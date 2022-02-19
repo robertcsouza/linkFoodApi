@@ -6,14 +6,12 @@ const cors = require("cors");
 const db_1 = require("./config/db");
 const routes = require("./config/routes");
 const path = require("path");
-const createToken_1 = require("./config/createToken");
 class StartUp {
     constructor() {
         this.app = express();
         this._db = new db_1.default;
         this._db.createConnection();
         this.middler();
-        createToken_1.default.cToken();
         routes.default.routes(this.app);
     }
     enableCors() {

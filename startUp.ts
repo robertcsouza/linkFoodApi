@@ -3,7 +3,7 @@ import * as bodyParser from 'body-parser';
 import * as cors from 'cors';
 import Db from './config/db';
 import * as routes from './config/routes';
-
+import * as path from 'path'
 
 import createToken from './config/createToken';
 
@@ -28,6 +28,10 @@ class StartUp {
         }
 
         this.app.use(cors(options))
+        this.app.use(
+            '/files',
+            express.static(path.resolve(__dirname,'..','uploads'))
+        );
     }
 
     middler(){

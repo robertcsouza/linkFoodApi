@@ -12,6 +12,7 @@ import uploads from '../config/uploads';
         app.route('/').get((req,res)=>{
             res.send({version:'0.0.1'});
         });
+       
 
         app.route('/uploads').post(uploads.single('file'),(req,res)=>{
             try {
@@ -31,6 +32,7 @@ import uploads from '../config/uploads';
 
        //User with authentication 
        app.route('/api/v1/user/update').post(userController.update); 
+       app.route('/api/v1/user/thumbnail').post(uploads.single('file'),userController.thumbnail) 
 
        app.route('/api/v1/news').get(newsController.get); 
        app.route('/api/v1/news/:id').get(newsController.getById); 

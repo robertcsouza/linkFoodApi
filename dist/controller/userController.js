@@ -15,6 +15,8 @@ const HttpStatus = require("http-status");
 const hash = require("md5");
 const helper_1 = require("../config/helper");
 const configs_1 = require("../config/configs");
+//TODO update user 
+// TODO upload image
 class NewsController {
     constructor() {
     }
@@ -69,6 +71,17 @@ class NewsController {
     update(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             console.log(req.user);
+        });
+    }
+    thumbnail(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const { filename } = req.file;
+                return helper_1.default.sendResponse(res, HttpStatus.OK, { msg: `http://localhost:3050/files/${filename}` });
+            }
+            catch (error) {
+                console.log(error);
+            }
         });
     }
 }

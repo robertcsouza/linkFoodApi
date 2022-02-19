@@ -6,7 +6,8 @@ import helper from "../config/helper";
 import configs from "../config/configs";
 
 
-
+//TODO update user 
+// TODO upload image
 
 class NewsController {
     constructor() {
@@ -74,8 +75,17 @@ class NewsController {
         }
     async update(req,res){
          console.log(req.user);
-    }    
-
+    } 
+    
+    
+    async thumbnail(req,res){
+        try {
+            const { filename } = req.file; 
+            return helper.sendResponse(res, HttpStatus.OK, { msg: `http://localhost:3050/files/${filename}`}); 
+        } catch (error) {
+            console.log(error)
+        }
+   }
 
 
  

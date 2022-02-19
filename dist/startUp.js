@@ -5,6 +5,7 @@ const bodyParser = require("body-parser");
 const cors = require("cors");
 const db_1 = require("./config/db");
 const routes = require("./config/routes");
+const path = require("path");
 const createToken_1 = require("./config/createToken");
 class StartUp {
     constructor() {
@@ -21,6 +22,7 @@ class StartUp {
             origin: "*"
         };
         this.app.use(cors(options));
+        this.app.use('/files', express.static(path.resolve(__dirname, '..', 'uploads')));
     }
     middler() {
         this.enableCors();

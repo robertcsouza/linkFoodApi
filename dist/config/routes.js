@@ -24,6 +24,7 @@ class Routes {
         app.use(auth_1.default.validate);
         //User with authentication 
         app.route('/api/v1/user/update').post(userController_1.default.update);
+        app.route('/api/v1/user/thumbnail').post(uploads_1.default.single('file'), userController_1.default.thumbnail);
         app.route('/api/v1/news').get(newsController_1.default.get);
         app.route('/api/v1/news/:id').get(newsController_1.default.getById);
         app.route('/api/v1/news').post(newsController_1.default.create);

@@ -74,7 +74,14 @@ class NewsController {
             } 
         }
     async update(req,res){
-         console.log(req.user);
+        const user =  req.user
+        const {name} = req.body;
+       
+        if(!user) return helper.sendResponse(res, HttpStatus.UNAUTHORIZED, { msg: 'Usuário não encontrado' });
+        
+        await userService.update(user._id,{"name":name})
+        helper.sendResponse(res, HttpStatus.OK, { msg: 'Usuario atualizado' });
+
     } 
     
     

@@ -70,7 +70,12 @@ class NewsController {
     }
     update(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
-            console.log(req.user);
+            const user = req.user;
+            const { name } = req.body;
+            if (!user)
+                return helper_1.default.sendResponse(res, HttpStatus.UNAUTHORIZED, { msg: 'Usuário não encontrado' });
+            yield userService_1.default.update(user._id, { "name": name });
+            helper_1.default.sendResponse(res, HttpStatus.OK, { msg: 'Usuario atualizado' });
         });
     }
     thumbnail(req, res) {

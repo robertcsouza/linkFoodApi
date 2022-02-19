@@ -10,18 +10,21 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const restaurantService_1 = require("../services/restaurantService");
+const productsService_1 = require("../services/productsService");
 const HttpStatus = require("http-status");
 const helper_1 = require("../config/helper");
-//TODO update user 
-// TODO upload image
-class RestauranteController {
+class ProductController {
     constructor() {
     }
     index(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const restaurants = yield restaurantService_1.default.get();
-                helper_1.default.sendResponse(res, HttpStatus.UNAUTHORIZED, restaurants);
+                const { id } = req.params;
+                const restaurant = yield restaurantService_1.default.getOne({ _id: id });
+                if (!restaurant)
+                    helper_1.default.sendResponse(res, HttpStatus.UNAUTHORIZED, { msg: 'restaurante nao encomtrado' });
+                const products = yield productsService_1.default.getById(restaurant._id);
+                helper_1.default.sendResponse(res, HttpStatus.UNAUTHORIZED, products);
             }
             catch (error) {
                 console.log(`Error ${error}`);
@@ -35,19 +38,19 @@ class RestauranteController {
                 const user = req.user;
                 if (!user)
                     return helper_1.default.sendResponse(res, HttpStatus.UNAUTHORIZED, { msg: 'ação não pode ser realizada' });
-                const { name, freight, duration } = req.body;
+                const { name, price, description } = req.body;
                 const userExist = yield restaurantService_1.default.getOne({ owner: user._id });
-                if (userExist) {
-                    return helper_1.default.sendResponse(res, HttpStatus.UNAUTHORIZED, { msg: 'Usuário já possui um estabelecimento' });
+                if (!userExist) {
+                    return helper_1.default.sendResponse(res, HttpStatus.UNAUTHORIZED, { msg: 'Restaurante nao encontrado' });
                 }
-                const restaurant = {
+                const product = {
                     name,
-                    freight,
-                    duration,
-                    owner: user._id
+                    price,
+                    description,
+                    restaurant: userExist._id
                 };
-                yield restaurantService_1.default.create(restaurant);
-                return helper_1.default.sendResponse(res, HttpStatus.OK, { msg: 'Restaurante criado com sucesso' });
+                const productResult = yield productsService_1.default.create(product);
+                return helper_1.default.sendResponse(res, HttpStatus.OK, productResult);
             }
             catch (error) {
                 console.log(`Error ${error}`);
@@ -59,14 +62,16 @@ class RestauranteController {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const user = req.user;
-                const restaurant = req.body;
+                const product = req.body;
+                const { id } = req.params;
                 if (!user)
                     return helper_1.default.sendResponse(res, HttpStatus.UNAUTHORIZED, { msg: 'ação não pode ser realizada' });
-                const restaurantExist = yield restaurantService_1.default.getOne({ owner: user._id });
-                if (!restaurantExist)
-                    return helper_1.default.sendResponse(res, HttpStatus.UNAUTHORIZED, { msg: 'Estabelecimento nao encotrado' });
-                yield restaurantService_1.default.update(restaurantExist._id, restaurant);
-                return helper_1.default.sendResponse(res, HttpStatus.OK, { msg: 'Restaurante atualizado' });
+                const userExist = yield restaurantService_1.default.getOne({ owner: user._id });
+                if (!userExist) {
+                    return helper_1.default.sendResponse(res, HttpStatus.UNAUTHORIZED, { msg: 'Restaurante nao encontrado' });
+                }
+                yield productsService_1.default.update(id, product);
+                return helper_1.default.sendResponse(res, HttpStatus.OK, { msg: 'produto atualizado' });
             }
             catch (error) {
                 console.log(`Error ${error}`);
@@ -79,10 +84,11 @@ class RestauranteController {
             try {
                 const { _id } = req.user;
                 const { filename } = req.file;
+                const { id } = req.params;
                 const restaurant = yield restaurantService_1.default.getOne({ owner: _id });
                 if (!restaurant)
                     return helper_1.default.sendResponse(res, HttpStatus.UNAUTHORIZED, { msg: 'Estabelecimento nao encotrado' });
-                yield restaurantService_1.default.update(restaurant._id, { thumbnail: `http://localhost:3050/files/${filename}` });
+                yield productsService_1.default.update(id, { thumbnail: `http://localhost:3050/files/${filename}` });
                 helper_1.default.sendResponse(res, HttpStatus.OK, { msg: `http://localhost:3050/files/${filename}` });
             }
             catch (error) {
@@ -91,4 +97,4 @@ class RestauranteController {
         });
     }
 }
-exports.default = new RestauranteController();
+exports.default = new ProductController();

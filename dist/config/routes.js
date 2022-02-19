@@ -6,6 +6,7 @@ const restaurantController_1 = require("../controller/restaurantController");
 const bannerController_1 = require("../controller/bannerController");
 const auth_1 = require("../config/auth");
 const uploads_1 = require("../config/uploads");
+const productController_1 = require("../controller/productController");
 class Routes {
     routes(app) {
         app.route('/').get((req, res) => {
@@ -25,6 +26,8 @@ class Routes {
         app.route('/api/v1/user/create').post(userController_1.default.create);
         //Restaurants index
         app.route('/api/v1/restaurant').get(restaurantController_1.default.index);
+        //products index
+        app.route('/api/v1/product').get(productController_1.default.index);
         //insert banner
         app.route('/api/v1/banner/thumbnail').post(uploads_1.default.single('file'), bannerController_1.default.thumbnail);
         app.route('/api/v1/banner').get(bannerController_1.default.index);
@@ -36,6 +39,10 @@ class Routes {
         app.route('/api/v1/restaurant/create').post(restaurantController_1.default.create);
         app.route('/api/v1/restaurant/update').put(restaurantController_1.default.update);
         app.route('/api/v1/restaurant/thumbnail').post(uploads_1.default.single('file'), restaurantController_1.default.thumbnail);
+        //Product
+        app.route('/api/v1/product/create').post(productController_1.default.create);
+        app.route('/api/v1/product/update/:id').put(productController_1.default.update);
+        app.route('/api/v1/product/thumbnail/:id').post(uploads_1.default.single('file'), productController_1.default.thumbnail);
         // TODO apagar essas rotas 
         app.route('/api/v1/news').get(newsController_1.default.get);
         app.route('/api/v1/news/:id').get(newsController_1.default.getById);

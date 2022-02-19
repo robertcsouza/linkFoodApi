@@ -1,26 +1,24 @@
 import restaurantService from "../services/restaurantService";
-import * as jwt from 'jsonwebtoken';
+import productService from "../services/productsService";
 import * as HttpStatus from 'http-status';
-import * as hash from 'md5';
 import helper from "../config/helper";
-import configs from "../config/configs";
-import { userInfo } from "os";
 
-
-//TODO update user 
-// TODO upload image
-
-class RestauranteController {
+class OrderController {
     constructor() {
 
     }
 
     async  index(req,res){
+
         try {
-          
-            const restaurants = await restaurantService.get();
-          
-            helper.sendResponse(res, HttpStatus.UNAUTHORIZED, restaurants);
+            const { id } = req.params;
+            const restaurant = await restaurantService.getOne({_id:id});
+
+            if(!restaurant) helper.sendResponse(res, HttpStatus.UNAUTHORIZED, {msg:'restaurante nao encomtrado'})
+
+            const products = await productService.getById(restaurant._id);
+      
+            helper.sendResponse(res, HttpStatus.UNAUTHORIZED, products);
 
             } catch(error) {
                 console.log(`Error ${error}`)
@@ -36,25 +34,26 @@ class RestauranteController {
             const user = req.user; 
             
             if(!user) return helper.sendResponse(res, HttpStatus.UNAUTHORIZED, { msg: 'ação não pode ser realizada' });
-            const {name,freight,duration} = req.body;
+            const {name,price,description} = req.body;
             
             const userExist = await restaurantService.getOne({owner:user._id});
         
-            if (userExist) {
-                return helper.sendResponse(res, HttpStatus.UNAUTHORIZED, { msg: 'Usuário já possui um estabelecimento' });
+            if (!userExist) {
+                return helper.sendResponse(res, HttpStatus.UNAUTHORIZED, { msg: 'Restaurante nao encontrado' });
             }
 
-            const restaurant = {
+  
+  
+            const product = {
                 name,
-                freight,
-                duration,
-                owner:user._id
-                
+                price,
+                description,
+                restaurant: userExist._id    
             }    
 
-            await restaurantService.create(restaurant)
+            const productResult =  await productService.create(product)
 
-            return helper.sendResponse(res, HttpStatus.OK, { msg: 'Restaurante criado com sucesso' });
+            return helper.sendResponse(res, HttpStatus.OK, productResult);
 
 
             } catch(error) {
@@ -64,20 +63,21 @@ class RestauranteController {
             } 
         }
     async update(req,res){
- 
         try {
             const user = req.user; 
-            const restaurant = req.body;
-     
+            const product = req.body;
+            const {id} = req.params;
             if(!user) return helper.sendResponse(res, HttpStatus.UNAUTHORIZED, { msg: 'ação não pode ser realizada' });
-                     
-            const restaurantExist = await restaurantService.getOne({owner:user._id});
+              
+            const userExist = await restaurantService.getOne({owner:user._id});
         
-            if (!restaurantExist) return helper.sendResponse(res, HttpStatus.UNAUTHORIZED, { msg: 'Estabelecimento nao encotrado' });
-            
-            await restaurantService.update(restaurantExist._id,restaurant)
+            if (!userExist) {
+                return helper.sendResponse(res, HttpStatus.UNAUTHORIZED, { msg: 'Restaurante nao encontrado' });
+            }
+  await productService.update(id,product)
 
-            return helper.sendResponse(res, HttpStatus.OK, {msg:'Restaurante atualizado'} );
+            return helper.sendResponse(res, HttpStatus.OK,  { msg: 'produto atualizado' });
+
 
             } catch(error) {
                 console.log(`Error ${error}`)
@@ -90,12 +90,13 @@ class RestauranteController {
     async thumbnail(req,res){
         try {
             const {_id} = req.user;    
-            const { filename } = req.file; 
+            const { filename } = req.file;
+            const {id} = req.params; 
             const restaurant = await restaurantService.getOne({owner:_id})
             
             if(!restaurant)  return helper.sendResponse(res, HttpStatus.UNAUTHORIZED, { msg: 'Estabelecimento nao encotrado' }); 
             
-            await restaurantService.update(restaurant._id, {thumbnail:`http://localhost:3050/files/${filename}`})
+            await productService.update(id, {thumbnail:`http://localhost:3050/files/${filename}`})
             
             helper.sendResponse(res, HttpStatus.OK, { msg: `http://localhost:3050/files/${filename}`}); 
 
@@ -110,4 +111,4 @@ class RestauranteController {
 
  }
 
-export default new RestauranteController();
+export default new OrderController();

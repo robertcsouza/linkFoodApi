@@ -4,6 +4,7 @@ import restaurantController from '../controller/restaurantController';
 import bannerController from '../controller/bannerController';
 import auth from '../config/auth';
 import uploads from '../config/uploads';
+import productController from '../controller/productController';
 
     
 
@@ -34,10 +35,14 @@ import uploads from '../config/uploads';
         //Restaurants index
         app.route('/api/v1/restaurant').get(restaurantController.index); 
 
+        //products index
+
+        app.route('/api/v1/product').get(productController.index); 
+
         //insert banner
         app.route('/api/v1/banner/thumbnail').post(uploads.single('file'),bannerController.thumbnail) 
         app.route('/api/v1/banner').get(bannerController.index); 
-           
+
        app.use(auth.validate) 
 
        //User with authentication 
@@ -48,6 +53,14 @@ import uploads from '../config/uploads';
        app.route('/api/v1/restaurant/create').post(restaurantController.create); 
        app.route('/api/v1/restaurant/update').put(restaurantController.update); 
        app.route('/api/v1/restaurant/thumbnail').post(uploads.single('file'),restaurantController.thumbnail) 
+
+        //Product
+        app.route('/api/v1/product/create').post(productController.create); 
+       app.route('/api/v1/product/update/:id').put(productController.update); 
+       app.route('/api/v1/product/thumbnail/:id').post(uploads.single('file'),productController.thumbnail) 
+
+
+
 
        // TODO apagar essas rotas 
        app.route('/api/v1/news').get(newsController.get); 

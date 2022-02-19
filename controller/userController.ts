@@ -44,35 +44,39 @@ class NewsController {
 
 
 
-async create(req, res){
-    
-    try {
-        const {email,password,passwordConfirm, name,isAdmin} = req.body;
+    async create(req, res){
         
-        if(password !== passwordConfirm){
-            return helper.sendResponse(res, HttpStatus.UNAUTHORIZED, { msg: 'As senhas nao são iguais' });
-        }
+        try {
+            const {email,password,passwordConfirm, name,isAdmin} = req.body;
+            
+            if(password !== passwordConfirm){
+                return helper.sendResponse(res, HttpStatus.UNAUTHORIZED, { msg: 'As senhas nao são iguais' });
+            }
+            
+            const hashPassword = hash(password);
+            
+            const user = await userService.getOne({email});
         
-         const hashPassword = hash(password);
-        
-        const user = await userService.getOne({email});
-    
-        if (user) {
-            return helper.sendResponse(res, HttpStatus.UNAUTHORIZED, { msg: 'Usuário existente' });
+            if (user) {
+                return helper.sendResponse(res, HttpStatus.UNAUTHORIZED, { msg: 'Usuário existente' });
+            }
+
+            await userService.create({name,email,password:hashPassword,isAdmin})
+
+            return helper.sendResponse(res, HttpStatus.OK, { msg: 'Usuário criado com sucesso' });
+
+
+            } catch(error) {
+                console.log(`Error ${error}`)
+                return helper.sendResponse(res, HttpStatus.UNAUTHORIZED, { msg: 'Error' });
+
+            } 
         }
+    async update(req,res){
+         console.log(req.user);
+    }    
 
-        await userService.create({name,email,password:hashPassword,isAdmin})
 
-        return helper.sendResponse(res, HttpStatus.OK, { msg: 'Usuário criado com sucesso' });
-
-
-        } catch(error) {
-            console.log(`Error ${error}`)
-            return helper.sendResponse(res, HttpStatus.UNAUTHORIZED, { msg: 'Error' });
-
-        }
-    
-}
 
  
   

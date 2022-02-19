@@ -12,7 +12,11 @@ class Auth {
                         success:false,
                         message:'403 - unauthorized'
                     })
+
+                   
+                   
                 }else{
+                    req.user= decoded;
                     next();
                 }
             })

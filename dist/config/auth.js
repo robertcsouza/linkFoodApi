@@ -14,6 +14,7 @@ class Auth {
                     });
                 }
                 else {
+                    req.user = decoded;
                     next();
                 }
             });

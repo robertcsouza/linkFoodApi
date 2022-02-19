@@ -2,7 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const newsService_1 = require("../services/newsService");
 const HttpStatus = require("http-status");
-const helper_1 = require("../infra/helper");
+const helper_1 = require("../config/helper");
 class NewsController {
     constructor() {
     }

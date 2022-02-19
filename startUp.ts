@@ -1,11 +1,13 @@
 import * as express from 'express';
 import * as bodyParser from 'body-parser';
 import * as cors from 'cors';
-import Db from './infra/db';
+import Db from './config/db';
 import newsController from './controller/newsController';
-import auth from './infra/auth';
-import createToken from './infra/createToken';
-import uploads from './infra/uploads';
+import userController from './controller/userController';
+
+import auth from './config/auth';
+import createToken from './config/createToken';
+import uploads from './config/uploads';
 class StartUp {
 
     public app:express.Application
@@ -50,13 +52,23 @@ class StartUp {
                 console.log(error);  
             }
         })
+        
+        //session Routes
+        this.app.route('/api/v1/session').post(userController.session);
 
+        //User Routes
+        this.app.route('/api/v1/user/create').post(userController.create); 
+        
        this.app.use(auth.validate) 
        this.app.route('/api/v1/news').get(newsController.get); 
        this.app.route('/api/v1/news/:id').get(newsController.getById); 
        this.app.route('/api/v1/news').post(newsController.create); 
        this.app.route('/api/v1/news/:id').put(newsController.update); 
        this.app.route('/api/v1/news/:id').delete(newsController.delete); 
+       
+       
+       
+       
 
     }
 

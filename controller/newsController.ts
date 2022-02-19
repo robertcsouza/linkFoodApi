@@ -1,6 +1,6 @@
 import newsService from "../services/newsService";
 import * as HttpStatus from 'http-status';
-import helper from "../infra/helper";
+import helper from "../config/helper";
 
 
 

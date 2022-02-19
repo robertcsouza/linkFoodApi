@@ -3,11 +3,12 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express = require("express");
 const bodyParser = require("body-parser");
 const cors = require("cors");
-const db_1 = require("./infra/db");
+const db_1 = require("./config/db");
 const newsController_1 = require("./controller/newsController");
-const auth_1 = require("./infra/auth");
-const createToken_1 = require("./infra/createToken");
-const uploads_1 = require("./infra/uploads");
+const userController_1 = require("./controller/userController");
+const auth_1 = require("./config/auth");
+const createToken_1 = require("./config/createToken");
+const uploads_1 = require("./config/uploads");
 class StartUp {
     constructor() {
         this.app = express();
@@ -41,6 +42,10 @@ class StartUp {
                 console.log(error);
             }
         });
+        //session Routes
+        this.app.route('/api/v1/session').post(userController_1.default.session);
+        //User Routes
+        this.app.route('/api/v1/user/create').post(userController_1.default.create);
         this.app.use(auth_1.default.validate);
         this.app.route('/api/v1/news').get(newsController_1.default.get);
         this.app.route('/api/v1/news/:id').get(newsController_1.default.getById);

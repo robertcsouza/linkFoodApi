@@ -5,6 +5,7 @@ import bannerController from '../controller/bannerController';
 import auth from '../config/auth';
 import uploads from '../config/uploads';
 import productController from '../controller/productController';
+import orderController from '../controller/oderController';
 
     
 
@@ -57,8 +58,16 @@ import productController from '../controller/productController';
         //Product
         app.route('/api/v1/product/create').post(productController.create); 
        app.route('/api/v1/product/update/:id').put(productController.update); 
-       app.route('/api/v1/product/thumbnail/:id').post(uploads.single('file'),productController.thumbnail) 
+       app.route('/api/v1/product/thumbnail/:id').post(uploads.single('file'),productController.thumbnail)
+       
+       //Orders
 
+       app.route('/api/v1/order/').get(orderController.index); 
+       app.route('/api/v1/order/:id').get(orderController.indexOne); 
+       app.route('/api/v1/order/create').post(orderController.create); 
+       app.route('/api/v1/order/update/:id').put(orderController.update); 
+       
+       
 
 
 

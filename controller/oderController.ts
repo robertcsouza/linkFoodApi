@@ -1,5 +1,6 @@
 import restaurantService from "../services/restaurantService";
 import productService from "../services/productsService";
+import orderService from "../services/orderService";
 import * as HttpStatus from 'http-status';
 import helper from "../config/helper";
 
@@ -8,17 +9,48 @@ class OrderController {
 
     }
 
+    /*
+    
+    total:{type:Number},
+    obs:{type:String},
+    status:{type:String},
+    user:{
+        type: mongoose.Schema.Types.ObjectId,
+        ref:'users'
+        },
+    restaurants:{
+        type: mongoose.Schema.Types.ObjectId,
+        ref:'restaurants'
+        },    
+
+    products:{type:Array}
+    
+    */
+
     async  index(req,res){
 
         try {
-            const { id } = req.params;
-            const restaurant = await restaurantService.getOne({_id:id});
+            const user = req.user; 
+            if(!user) return  helper.sendResponse(res, HttpStatus.UNAUTHORIZED, {msg:'Não authorizado'})
+            
+            if(user.isAdmin){
+                //retornar orders admin
+                const restaurant = await restaurantService.getOne({owner:user._id});
+                
+                if(!restaurant) return  helper.sendResponse(res, HttpStatus.UNAUTHORIZED, {msg:'restaurante nao encomtrado'})
 
-            if(!restaurant) helper.sendResponse(res, HttpStatus.UNAUTHORIZED, {msg:'restaurante nao encomtrado'})
+                const orders = await orderService.get({restaurant:restaurant._id})
 
-            const products = await productService.getById(restaurant._id);
-      
-            helper.sendResponse(res, HttpStatus.UNAUTHORIZED, products);
+                return  helper.sendResponse(res, HttpStatus.OK, orders);
+
+            }else{
+                //retornar order usuario
+                
+                const orders = await orderService.get({user:user._id})
+
+                return  helper.sendResponse(res, HttpStatus.OK, orders);
+            }
+            
 
             } catch(error) {
                 console.log(`Error ${error}`)
@@ -27,6 +59,44 @@ class OrderController {
             } 
     }
 
+        async  indexOne(req,res){
+
+            try {
+                const user = req.user; 
+                const { id } = req.params;
+                if(!user) return  helper.sendResponse(res, HttpStatus.UNAUTHORIZED, {msg:'Não authorizado'})
+                
+                if(user.isAdmin){
+                    //retornar orders admin
+                    const restaurant = await restaurantService.getOne({owner:user._id});
+                    
+                    if(!restaurant) return  helper.sendResponse(res, HttpStatus.UNAUTHORIZED, {msg:'restaurante nao encomtrado'})
+
+                    const order = await orderService.getById(id)
+
+                    if(order.restaurants.toString() !== restaurant._id.toString()) return helper.sendResponse(res, HttpStatus.UNAUTHORIZED, { msg: 'Não autorizado' }); 
+                    
+                    return  helper.sendResponse(res, HttpStatus.OK, order);
+
+                }else{
+                    //retornar order usuario
+                    
+                    const order = await orderService.getById(id)
+                   
+                    if(order.user.toString() !== user._id.toString()) return helper.sendResponse(res, HttpStatus.UNAUTHORIZED, { msg: 'Não autorizado' });
+                        
+                   
+                     return  helper.sendResponse(res, HttpStatus.OK, order);
+                   
+                }
+                
+                } catch(error) {
+                    console.log(`Error ${error}`)
+                    return helper.sendResponse(res, HttpStatus.UNAUTHORIZED, { msg: 'Error' });
+
+                } 
+        }
+
 
     async create(req, res){
 
@@ -34,27 +104,21 @@ class OrderController {
             const user = req.user; 
             
             if(!user) return helper.sendResponse(res, HttpStatus.UNAUTHORIZED, { msg: 'ação não pode ser realizada' });
-            const {name,price,description} = req.body;
             
-            const userExist = await restaurantService.getOne({owner:user._id});
-        
-            if (!userExist) {
-                return helper.sendResponse(res, HttpStatus.UNAUTHORIZED, { msg: 'Restaurante nao encontrado' });
+            const {total,obs,status,products,restaurants} = req.body;
+            
+            const order = {
+                total,
+                obs,
+                status,
+                user: user._id,
+                restaurants,
+                products
             }
+            
+            const orderResult =  await orderService.create(order);
 
-  
-  
-            const product = {
-                name,
-                price,
-                description,
-                restaurant: userExist._id    
-            }    
-
-            const productResult =  await productService.create(product)
-
-            return helper.sendResponse(res, HttpStatus.OK, productResult);
-
+            return helper.sendResponse(res, HttpStatus.OK, orderResult);
 
             } catch(error) {
                 console.log(`Error ${error}`)
@@ -62,52 +126,38 @@ class OrderController {
 
             } 
         }
+
+
     async update(req,res){
         try {
             const user = req.user; 
-            const product = req.body;
-            const {id} = req.params;
-            if(!user) return helper.sendResponse(res, HttpStatus.UNAUTHORIZED, { msg: 'ação não pode ser realizada' });
-              
-            const userExist = await restaurantService.getOne({owner:user._id});
-        
-            if (!userExist) {
-                return helper.sendResponse(res, HttpStatus.UNAUTHORIZED, { msg: 'Restaurante nao encontrado' });
+            const { id } = req.params;
+            const {status} = req.body;
+            if(!user) return  helper.sendResponse(res, HttpStatus.UNAUTHORIZED, {msg:'Não authorizado'})
+            
+            if(user.isAdmin){
+                //retornar orders admin
+                const restaurant = await restaurantService.getOne({owner:user._id});
+                
+                if(!restaurant) return  helper.sendResponse(res, HttpStatus.UNAUTHORIZED, {msg:'restaurante nao encomtrado'})
+
+                const order = await orderService.getById(id)
+                
+                if(!order) return  helper.sendResponse(res, HttpStatus.UNAUTHORIZED, {msg:'pedido não encontrado'})
+                
+                await orderService.update(id,{status});
+                
+                return helper.sendResponse(res, HttpStatus.OK, { msg: 'Pedido atualizado' });
+
             }
-  await productService.update(id,product)
-
-            return helper.sendResponse(res, HttpStatus.OK,  { msg: 'produto atualizado' });
-
-
+           
             } catch(error) {
                 console.log(`Error ${error}`)
                 return helper.sendResponse(res, HttpStatus.UNAUTHORIZED, { msg: 'Error' });
 
             } 
     } 
-    
-    
-    async thumbnail(req,res){
-        try {
-            const {_id} = req.user;    
-            const { filename } = req.file;
-            const {id} = req.params; 
-            const restaurant = await restaurantService.getOne({owner:_id})
-            
-            if(!restaurant)  return helper.sendResponse(res, HttpStatus.UNAUTHORIZED, { msg: 'Estabelecimento nao encotrado' }); 
-            
-            await productService.update(id, {thumbnail:`http://localhost:3050/files/${filename}`})
-            
-            helper.sendResponse(res, HttpStatus.OK, { msg: `http://localhost:3050/files/${filename}`}); 
-
-        } catch (error) {
-            console.log(error)
-        }
-   }
-
-
- 
-  
+      
 
  }
 

@@ -5,6 +5,9 @@ class  OrderService {
         
     }
 
+    async get(options:Object){
+        return await orderRepository.find(options); 
+    }
  
     async getById(_id:String){
         return await orderRepository.findById(_id); 
@@ -15,7 +18,7 @@ class  OrderService {
     }
 
     async update(_id:String, order){
-        
+           
         return await orderRepository.findByIdAndUpdate({_id:_id},order);
     }
 

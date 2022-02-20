@@ -13,6 +13,11 @@ const orderRepository_1 = require("../repository/orderRepository");
 class OrderService {
     constructor() {
     }
+    get(options) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return yield orderRepository_1.default.find(options);
+        });
+    }
     getById(_id) {
         return __awaiter(this, void 0, void 0, function* () {
             return yield orderRepository_1.default.findById(_id);

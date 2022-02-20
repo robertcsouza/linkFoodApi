@@ -7,6 +7,7 @@ const bannerController_1 = require("../controller/bannerController");
 const auth_1 = require("../config/auth");
 const uploads_1 = require("../config/uploads");
 const productController_1 = require("../controller/productController");
+const oderController_1 = require("../controller/oderController");
 class Routes {
     routes(app) {
         app.route('/').get((req, res) => {
@@ -43,6 +44,11 @@ class Routes {
         app.route('/api/v1/product/create').post(productController_1.default.create);
         app.route('/api/v1/product/update/:id').put(productController_1.default.update);
         app.route('/api/v1/product/thumbnail/:id').post(uploads_1.default.single('file'), productController_1.default.thumbnail);
+        //Orders
+        app.route('/api/v1/order/').get(oderController_1.default.index);
+        app.route('/api/v1/order/:id').get(oderController_1.default.indexOne);
+        app.route('/api/v1/order/create').post(oderController_1.default.create);
+        app.route('/api/v1/order/update/:id').put(oderController_1.default.update);
         // TODO apagar essas rotas 
         app.route('/api/v1/news').get(newsController_1.default.get);
         app.route('/api/v1/news/:id').get(newsController_1.default.getById);

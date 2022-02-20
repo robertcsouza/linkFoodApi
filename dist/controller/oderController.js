@@ -10,21 +10,79 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const restaurantService_1 = require("../services/restaurantService");
-const productsService_1 = require("../services/productsService");
+const orderService_1 = require("../services/orderService");
 const HttpStatus = require("http-status");
 const helper_1 = require("../config/helper");
 class OrderController {
     constructor() {
     }
+    /*
+    
+    total:{type:Number},
+    obs:{type:String},
+    status:{type:String},
+    user:{
+        type: mongoose.Schema.Types.ObjectId,
+        ref:'users'
+        },
+    restaurants:{
+        type: mongoose.Schema.Types.ObjectId,
+        ref:'restaurants'
+        },
+
+    products:{type:Array}
+    
+    */
     index(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
+                const user = req.user;
+                if (!user)
+                    return helper_1.default.sendResponse(res, HttpStatus.UNAUTHORIZED, { msg: 'Não authorizado' });
+                if (user.isAdmin) {
+                    //retornar orders admin
+                    const restaurant = yield restaurantService_1.default.getOne({ owner: user._id });
+                    if (!restaurant)
+                        return helper_1.default.sendResponse(res, HttpStatus.UNAUTHORIZED, { msg: 'restaurante nao encomtrado' });
+                    const orders = yield orderService_1.default.get({ restaurant: restaurant._id });
+                    return helper_1.default.sendResponse(res, HttpStatus.OK, orders);
+                }
+                else {
+                    //retornar order usuario
+                    const orders = yield orderService_1.default.get({ user: user._id });
+                    return helper_1.default.sendResponse(res, HttpStatus.OK, orders);
+                }
+            }
+            catch (error) {
+                console.log(`Error ${error}`);
+                return helper_1.default.sendResponse(res, HttpStatus.UNAUTHORIZED, { msg: 'Error' });
+            }
+        });
+    }
+    indexOne(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const user = req.user;
                 const { id } = req.params;
-                const restaurant = yield restaurantService_1.default.getOne({ _id: id });
-                if (!restaurant)
-                    helper_1.default.sendResponse(res, HttpStatus.UNAUTHORIZED, { msg: 'restaurante nao encomtrado' });
-                const products = yield productsService_1.default.getById(restaurant._id);
-                helper_1.default.sendResponse(res, HttpStatus.UNAUTHORIZED, products);
+                if (!user)
+                    return helper_1.default.sendResponse(res, HttpStatus.UNAUTHORIZED, { msg: 'Não authorizado' });
+                if (user.isAdmin) {
+                    //retornar orders admin
+                    const restaurant = yield restaurantService_1.default.getOne({ owner: user._id });
+                    if (!restaurant)
+                        return helper_1.default.sendResponse(res, HttpStatus.UNAUTHORIZED, { msg: 'restaurante nao encomtrado' });
+                    const order = yield orderService_1.default.getById(id);
+                    if (order.restaurants.toString() !== restaurant._id.toString())
+                        return helper_1.default.sendResponse(res, HttpStatus.UNAUTHORIZED, { msg: 'Não autorizado' });
+                    return helper_1.default.sendResponse(res, HttpStatus.OK, order);
+                }
+                else {
+                    //retornar order usuario
+                    const order = yield orderService_1.default.getById(id);
+                    if (order.user.toString() !== user._id.toString())
+                        return helper_1.default.sendResponse(res, HttpStatus.UNAUTHORIZED, { msg: 'Não autorizado' });
+                    return helper_1.default.sendResponse(res, HttpStatus.OK, order);
+                }
             }
             catch (error) {
                 console.log(`Error ${error}`);
@@ -38,19 +96,17 @@ class OrderController {
                 const user = req.user;
                 if (!user)
                     return helper_1.default.sendResponse(res, HttpStatus.UNAUTHORIZED, { msg: 'ação não pode ser realizada' });
-                const { name, price, description } = req.body;
-                const userExist = yield restaurantService_1.default.getOne({ owner: user._id });
-                if (!userExist) {
-                    return helper_1.default.sendResponse(res, HttpStatus.UNAUTHORIZED, { msg: 'Restaurante nao encontrado' });
-                }
-                const product = {
-                    name,
-                    price,
-                    description,
-                    restaurant: userExist._id
+                const { total, obs, status, products, restaurants } = req.body;
+                const order = {
+                    total,
+                    obs,
+                    status,
+                    user: user._id,
+                    restaurants,
+                    products
                 };
-                const productResult = yield productsService_1.default.create(product);
-                return helper_1.default.sendResponse(res, HttpStatus.OK, productResult);
+                const orderResult = yield orderService_1.default.create(order);
+                return helper_1.default.sendResponse(res, HttpStatus.OK, orderResult);
             }
             catch (error) {
                 console.log(`Error ${error}`);
@@ -62,37 +118,25 @@ class OrderController {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const user = req.user;
-                const product = req.body;
                 const { id } = req.params;
+                const { status } = req.body;
                 if (!user)
-                    return helper_1.default.sendResponse(res, HttpStatus.UNAUTHORIZED, { msg: 'ação não pode ser realizada' });
-                const userExist = yield restaurantService_1.default.getOne({ owner: user._id });
-                if (!userExist) {
-                    return helper_1.default.sendResponse(res, HttpStatus.UNAUTHORIZED, { msg: 'Restaurante nao encontrado' });
+                    return helper_1.default.sendResponse(res, HttpStatus.UNAUTHORIZED, { msg: 'Não authorizado' });
+                if (user.isAdmin) {
+                    //retornar orders admin
+                    const restaurant = yield restaurantService_1.default.getOne({ owner: user._id });
+                    if (!restaurant)
+                        return helper_1.default.sendResponse(res, HttpStatus.UNAUTHORIZED, { msg: 'restaurante nao encomtrado' });
+                    const order = yield orderService_1.default.getById(id);
+                    if (!order)
+                        return helper_1.default.sendResponse(res, HttpStatus.UNAUTHORIZED, { msg: 'pedido não encontrado' });
+                    yield orderService_1.default.update(id, { status });
+                    return helper_1.default.sendResponse(res, HttpStatus.OK, { msg: 'Pedido atualizado' });
                 }
-                yield productsService_1.default.update(id, product);
-                return helper_1.default.sendResponse(res, HttpStatus.OK, { msg: 'produto atualizado' });
             }
             catch (error) {
                 console.log(`Error ${error}`);
                 return helper_1.default.sendResponse(res, HttpStatus.UNAUTHORIZED, { msg: 'Error' });
-            }
-        });
-    }
-    thumbnail(req, res) {
-        return __awaiter(this, void 0, void 0, function* () {
-            try {
-                const { _id } = req.user;
-                const { filename } = req.file;
-                const { id } = req.params;
-                const restaurant = yield restaurantService_1.default.getOne({ owner: _id });
-                if (!restaurant)
-                    return helper_1.default.sendResponse(res, HttpStatus.UNAUTHORIZED, { msg: 'Estabelecimento nao encotrado' });
-                yield productsService_1.default.update(id, { thumbnail: `http://localhost:3050/files/${filename}` });
-                helper_1.default.sendResponse(res, HttpStatus.OK, { msg: `http://localhost:3050/files/${filename}` });
-            }
-            catch (error) {
-                console.log(error);
             }
         });
     }

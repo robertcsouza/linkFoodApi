@@ -20,7 +20,7 @@ class RestauranteController {
           
             const restaurants = await restaurantService.get();
           
-            helper.sendResponse(res, HttpStatus.UNAUTHORIZED, restaurants);
+            helper.sendResponse(res, HttpStatus.OK, restaurants);
 
             } catch(error) {
                 console.log(`Error ${error}`)

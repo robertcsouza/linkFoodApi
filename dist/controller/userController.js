@@ -33,12 +33,19 @@ class NewsController {
                 const payload = {
                     "_id": user._id,
                     "name": user.name,
-                    "email": user.email,
-                    "isAdmin": user.isAdmin
+                    "email": user.email
                 };
                 var token = jwt.sign(payload, configs_1.default.secret);
                 return helper_1.default.sendResponse(res, HttpStatus.OK, {
                     token: token,
+                    name: user.name,
+                    email: user.email,
+                    isAdmin: user.isAdmin,
+                    street: user.street,
+                    number: user.number,
+                    district: user.district,
+                    reference: user.reference,
+                    thumbnail: user.thumbnail,
                 });
             }
             catch (error) {
@@ -50,7 +57,7 @@ class NewsController {
     create(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const { email, password, passwordConfirm, name, isAdmin } = req.body;
+                const { email, password, passwordConfirm, name, isAdmin, street, number, district, reference } = req.body;
                 if (password !== passwordConfirm) {
                     return helper_1.default.sendResponse(res, HttpStatus.UNAUTHORIZED, { msg: 'As senhas nao são iguais' });
                 }
@@ -59,7 +66,7 @@ class NewsController {
                 if (user) {
                     return helper_1.default.sendResponse(res, HttpStatus.UNAUTHORIZED, { msg: 'Usuário existente' });
                 }
-                yield userService_1.default.create({ name, email, password: hashPassword, isAdmin });
+                yield userService_1.default.create({ name, email, password: hashPassword, isAdmin, street, number, district, reference });
                 return helper_1.default.sendResponse(res, HttpStatus.OK, { msg: 'Usuário criado com sucesso' });
             }
             catch (error) {
@@ -81,8 +88,14 @@ class NewsController {
     thumbnail(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
+                const user = req.user;
+                const { name } = req.body;
                 const { filename } = req.file;
-                return helper_1.default.sendResponse(res, HttpStatus.OK, { msg: `http://localhost:3050/files/${filename}` });
+                //return helper.sendResponse(res, HttpStatus.OK, { msg: `http://localhost:3050/files/${filename}`}); 
+                if (!user)
+                    return helper_1.default.sendResponse(res, HttpStatus.UNAUTHORIZED, { msg: 'Usuário não encontrado' });
+                yield userService_1.default.update(user._id, { "thumbnail": `http://192.168.100.9:3050/files/${filename}` });
+                helper_1.default.sendResponse(res, HttpStatus.OK, { msg: `http://192.168.100.9:3050/files/${filename}` });
             }
             catch (error) {
                 console.log(error);

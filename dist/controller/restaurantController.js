@@ -21,7 +21,7 @@ class RestauranteController {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const restaurants = yield restaurantService_1.default.get();
-                helper_1.default.sendResponse(res, HttpStatus.UNAUTHORIZED, restaurants);
+                helper_1.default.sendResponse(res, HttpStatus.OK, restaurants);
             }
             catch (error) {
                 console.log(`Error ${error}`);

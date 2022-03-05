@@ -24,7 +24,7 @@ class ProductController {
                 if (!restaurant)
                     helper_1.default.sendResponse(res, HttpStatus.UNAUTHORIZED, { msg: 'restaurante nao encomtrado' });
                 const products = yield productsService_1.default.getById(restaurant._id);
-                helper_1.default.sendResponse(res, HttpStatus.UNAUTHORIZED, products);
+                helper_1.default.sendResponse(res, HttpStatus.OK, products);
             }
             catch (error) {
                 console.log(`Error ${error}`);

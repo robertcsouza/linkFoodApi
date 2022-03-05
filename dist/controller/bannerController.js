@@ -19,7 +19,7 @@ class BannerController {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const banners = yield bannerService_1.default.get();
-                helper_1.default.sendResponse(res, HttpStatus.UNAUTHORIZED, banners);
+                helper_1.default.sendResponse(res, HttpStatus.OK, banners);
             }
             catch (error) {
                 console.log(`Error ${error}`);

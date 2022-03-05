@@ -18,7 +18,7 @@ class ProductController {
 
             const products = await productService.getById(restaurant._id);
       
-            helper.sendResponse(res, HttpStatus.UNAUTHORIZED, products);
+            helper.sendResponse(res, HttpStatus.OK, products);
 
             } catch(error) {
                 console.log(`Error ${error}`)

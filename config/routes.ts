@@ -12,10 +12,11 @@ import orderController from '../controller/oderController';
   class Routes {
     routes (app){
         
-        
+       
         
         app.route('/').get((req,res)=>{
             res.send({version:'0.0.1'});
+            
         });
        
 
@@ -38,7 +39,7 @@ import orderController from '../controller/oderController';
 
         //products index
 
-        app.route('/api/v1/product').get(productController.index); 
+        app.route('/api/v1/product/:id').get(productController.index); 
 
         //insert banner
         app.route('/api/v1/banner/thumbnail').post(uploads.single('file'),bannerController.thumbnail) 

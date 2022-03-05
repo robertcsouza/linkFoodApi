@@ -12,7 +12,7 @@ class BannerController {
           
             const banners = await bannerService.get();
           
-            helper.sendResponse(res, HttpStatus.UNAUTHORIZED, banners);
+            helper.sendResponse(res, HttpStatus.OK, banners);
 
             } catch(error) {
                 console.log(`Error ${error}`)

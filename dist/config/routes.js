@@ -28,7 +28,7 @@ class Routes {
         //Restaurants index
         app.route('/api/v1/restaurant').get(restaurantController_1.default.index);
         //products index
-        app.route('/api/v1/product').get(productController_1.default.index);
+        app.route('/api/v1/product/:id').get(productController_1.default.index);
         //insert banner
         app.route('/api/v1/banner/thumbnail').post(uploads_1.default.single('file'), bannerController_1.default.thumbnail);
         app.route('/api/v1/banner').get(bannerController_1.default.index);

@@ -37,6 +37,7 @@ class NewsController {
                 };
                 var token = jwt.sign(payload, configs_1.default.secret);
                 return helper_1.default.sendResponse(res, HttpStatus.OK, {
+                    _id: user._id,
                     token: token,
                     name: user.name,
                     email: user.email,
